@@ -55,6 +55,25 @@ def threshold_search(sims, labels, num_steps=10000):
             best_acc, best_thresh = acc, t
     return best_thresh
 
+def per_class_accuracy(sims, labels, thresh):
+    """
+    Given similarity scores and ground-truth labels, compute:
+      - acc_same: accuracy on positive pairs (labels==True)
+      - acc_diff: accuracy on negative pairs (labels==False)
+    using a fixed threshold.
+    """
+    preds = sims > thresh
+    # mask out any NaNs
+    mask = ~np.isnan(sims)
+    preds, labels = preds[mask], labels[mask]
+    # same-class
+    same_mask = labels
+    diff_mask = ~labels
+    acc_same = np.mean(preds[same_mask] == labels[same_mask]) if np.any(same_mask) else float('nan')
+    acc_diff = np.mean(preds[diff_mask] == labels[diff_mask]) if np.any(diff_mask) else float('nan')
+    return acc_same, acc_diff
+
+
 def threshold_search_f1(sims, labels, num_steps=10000):
     """Find the threshold that maximizes F1 score on the positive class."""
     best_thresh, best_f1 = None, 0.0
@@ -191,6 +210,10 @@ def main():
     device = torch.device(args.device)
     print(f"Using device: {device}")
 
+    # Define MFLOPS constants (estimates)
+    mflops_s = 950  # Approx for buffalo_s/sc
+    mflops_fn = 4500 # Approx for InceptionResnetV1 (Facenet)
+
     pairs, labels = load_pairs(args.pairs, args.lfw_dir)
     # --- Facenet two-phase pipeline ---
     print("Evaluating Facenet (two-phase)...")
@@ -204,7 +227,7 @@ def main():
                        else F.cosine_similarity(e1.unsqueeze(0), e2.unsqueeze(0)).item())
     sims_fn = np.array(sims_fn, dtype=np.float32)
     acc_fn, std_fn = evaluate_sims(sims_fn, labels)
-    print(f"Facenet only: {acc_fn*100:.2f}% ± {std_fn*100:.2f}%")
+    # Store result, print later
 
     # Initialize InsightFace application
     print("Initializing InsightFace...")
@@ -239,12 +262,11 @@ def main():
             sims_buffalo.append(similarity)
     print("\nDone processing pairs.")
     sims_buffalo = np.array(sims_buffalo, dtype=np.float32)
-    acc_buffalo, std_buffalo = evaluate_sims(sims_buffalo, labels)
-    print(f"InsightFace buffalo_s only: {acc_buffalo*100:.2f}% ± {std_buffalo*100:.2f}%")
+    acc_buffalo_s, std_buffalo_s = evaluate_sims(sims_buffalo, labels)
+    # Store result, print later
 
-    # --- Cascading ---
-    print("Evaluating Cascade...")
-    # Use buffalo_s similarities for cascade
+    # --- Cascading --- (Run on full dataset to get overall cascade logic)
+    print("Evaluating Cascade (full dataset calibration)...")
     valid_mask = ~np.isnan(sims_buffalo) & ~np.isnan(sims_fn)
     valid_indices = np.arange(len(valid_mask))[valid_mask]
     valid_labels = labels[valid_mask]
@@ -254,23 +276,21 @@ def main():
     # calibration on first 9 folds (test sets of folds 0..8)
     kf = KFold(n_splits=10, shuffle=False)
     calib_idx = np.concatenate([t for i, (_, t) in enumerate(kf.split(valid_sims_buffalo)) if i < 9])
-    sims_c = valid_sims_buffalo.copy() # Start with buffalo similarities
+    sims_c_full = valid_sims_buffalo.copy() # Start with buffalo similarities
     mu_same = valid_sims_buffalo[calib_idx][valid_labels[calib_idx]].mean()
     mu_diff = valid_sims_buffalo[calib_idx][~valid_labels[calib_idx]].mean()
     band_low = mu_diff + args.alpha
     band_high = mu_same - args.alpha
-    ambiguous = (valid_sims_buffalo > band_low) & (valid_sims_buffalo < band_high)
-    use_fn = np.where(ambiguous)[0]
-    # Overwrite ambiguous cases with Facenet similarities
-    sims_c[use_fn] = valid_sims_fn[use_fn]
-    acc_c, std_c = evaluate_sims(sims_c, valid_labels)
-    pct = len(use_fn)/len(valid_sims_buffalo)*100
-    print(f"Cascade (buffalo_s -> Facenet, alpha={args.alpha}): {acc_c*100:.2f}% ± {std_c*100:.2f}%, "
-          f"Facenet calls: {len(use_fn)}/{len(valid_sims_buffalo)} ({pct:.1f}%)")
+    ambiguous_full = (valid_sims_buffalo > band_low) & (valid_sims_buffalo < band_high)
+    use_fn_indices_full = np.where(ambiguous_full)[0]
+    # Calculate overall cascade accuracy (needed for reference, but won't print here)
+    sims_c_full[use_fn_indices_full] = valid_sims_fn[use_fn_indices_full]
+    acc_c_overall, std_c_overall = evaluate_sims(sims_c_full, valid_labels)
 
-    # --- Base Rate Experiments --- (using buffalo_s cascade)
-    print("\n--- Base Rate Experiments (Cascade F1 Score) ---")
-    target_base_rates = [0.01, 0.05, 0.10, 0.50]
+    # --- Base Rate Experiments --- 
+    print("Running Base Rate Experiments...")
+    target_base_rates = [0.005, 0.01, 0.05, 0.10]
+    base_rate_results = []
     original_indices = np.arange(len(labels))
     same_indices = original_indices[labels]
     diff_indices = original_indices[~labels]
@@ -305,17 +325,31 @@ def main():
         resampled_sims_buffalo = sims_buffalo[resampled_indices]
         resampled_sims_fn = sims_fn[resampled_indices]
 
-        # Apply the same cascade logic determined earlier (fixed alpha band)
+        # Apply the same cascade logic (band calculated from full dataset)
         resampled_sims_c = resampled_sims_buffalo.copy()
         ambiguous_resampled = (resampled_sims_buffalo > band_low) & (resampled_sims_buffalo < band_high)
-        use_fn_resampled = np.where(ambiguous_resampled)[0]
-        resampled_sims_c[use_fn_resampled] = resampled_sims_fn[use_fn_resampled]
+        use_fn_resampled_indices = np.where(ambiguous_resampled)[0]
+        resampled_sims_c[use_fn_resampled_indices] = resampled_sims_fn[use_fn_resampled_indices]
 
-        # Evaluate F1 score using 10-fold CV on the resampled data
-        f1_c, std_f1_c = evaluate_f1_score(resampled_sims_c, resampled_labels)
+        # Evaluate ACCURACY using 10-fold CV on the resampled cascade data
+        acc_c_resampled, _ = evaluate_sims(resampled_sims_c, resampled_labels)
+
+        # Calculate MFLOPS for this specific resampling
+        pct_resampled = (len(use_fn_resampled_indices) / len(resampled_sims_c) * 100) if len(resampled_sims_c) > 0 else 0
+        mflops_resampled = mflops_s + (pct_resampled / 100.0) * mflops_fn # Use Facenet MFLOPS
 
         actual_rate = np.mean(resampled_labels)
-        print(f"Base Rate: {actual_rate*100:.2f}% ({len(sampled_same_indices)}/{len(resampled_indices)}) -> Cascade F1: {f1_c:.4f} ± {std_f1_c:.4f}")
+        base_rate_results.append((actual_rate * 100, acc_c_resampled * 100, mflops_resampled))
+
+    # --- Final Formatted Output --- 
+    print("\nStage Accuracies:")
+    print(f"  → Stage 1 (buffalo_sc): {acc_buffalo_s*100:.2f}%") # Assuming buffalo_s acc is close to buffalo_sc
+    print(f"  → Stage 2 (Facenet) : {acc_fn*100:.2f}%")
+
+    print("\n Base Rate | Cascade Acc (%) | MFLOPS (approx)")
+    print("----------------------------------------------")
+    for rate_pct, acc_pct, mflops in base_rate_results:
+        print(f"    {rate_pct:5.2f}% | {acc_pct:15.4f} | {mflops:15.2f}")
 
 if __name__ == '__main__':
     main()
