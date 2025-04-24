@@ -1,0 +1,21 @@
+name: cascadingfacenet
+channels:
+  - pytorch
+  - nvidia  # Add nvidia channel for CUDA components
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.10  # ensure compatibility with timm's dataclass defaults
+  - pytorch>=1.13,<2.1       # pick a tested PyTorch version for GPU support
+  - torchvision>=0.14,<0.15
+  - cudatoolkit=11.8          # Specify version, prefer nvidia channel
+  - cudnn                     # Prefer nvidia channel
+  - scikit-learn
+  - pillow
+  - opencv                  # For cv2 image loading (BGR)
+  - pip
+  - pip:
+    - insightface==0.7.3      # Pin insightface version
+    - onnxruntime-gpu>=1.16   # Correct spelling
+    - pytest                  # Optional 

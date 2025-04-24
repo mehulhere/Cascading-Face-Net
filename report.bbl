@@ -1,0 +1,108 @@
+\begin{thebibliography}{10}
+
+\bibitem{imbalancedlearning}
+H.~He and E.~A. Garcia, ``Learning from imbalanced data,'' {\em IEEE
+  Transactions on Knowledge and Data Engineering}, vol.~21, no.~9,
+  pp.~1263--1284, 2009.
+
+\bibitem{LFWdataset}
+G.~B. Huang, M.~Ramesh, T.~Berg, and E.~Learned-Miller, ``Labeled faces in the
+  wild: A database for studying face recognition in unconstrained
+  environments,'' {\em University of Massachusetts, Amherst}, vol.~1, no.~2,
+  2007.
+
+\bibitem{edgecomputing}
+W.~Shi, J.~Cao, Q.~Zhang, Y.~Li, and L.~Xu, ``Edge computing: Vision and
+  challenges,'' {\em IEEE Internet of Things Journal}, vol.~3, no.~5,
+  pp.~637--646, 2016.
+
+\bibitem{mobilefacenet}
+S.~Chen, Y.~Liu, X.~Gao, and Z.~Han, ``Mobilefacenets: Efficient cnns for
+  accurate real-time face verification on mobile devices,'' {\em arXiv preprint
+  arXiv:1804.07573}, 2018.
+
+\bibitem{shufflefacenet}
+Y.~Mart{\'\i}nez-D{\'\i}az, L.~S. Luevano, H.~Mendez-Vazquez,
+  M.~Nicol{\'a}s-D{\'\i}az, L.~Chang, and M.~Gonzalez-Mendoza,
+  ``Shufflefacenet: A lightweight face architecture for efficient and
+  highly-accurate face recognition,'' in {\em Proceedings of the IEEE/CVF
+  International Conference on Computer Vision Workshops}, pp.~2721--2728, 2019.
+
+\bibitem{pocketnet}
+Y.~Liu, S.~Chen, and Z.~Han, ``Pocketnet: Extreme lightweight face recognition
+  network,'' in {\em 2020 IEEE International Conference on Multimedia and Expo
+  (ICME)}, pp.~1--6, IEEE, 2020.
+
+\bibitem{facecompression}
+C.~N. Duong, K.~Luu, K.~Quach, and T.~Bui, ``Efficient neural network
+  compression for face recognition,'' {\em IEEE Transactions on Pattern
+  Analysis and Machine Intelligence}, vol.~43, no.~12, pp.~4309--4323, 2021.
+
+\bibitem{mixconv}
+M.~Tan and Q.~V. Le, ``Mixconv: Mixed depthwise convolutional kernels,'' in
+  {\em Proceedings of the British Machine Vision Conference (BMVC)}, 2019.
+
+\bibitem{violarjones}
+P.~Viola and M.~J. Jones, ``Robust real-time face detection,'' {\em
+  International Journal of Computer Vision}, vol.~57, no.~2, pp.~137--154,
+  2004.
+
+\bibitem{adaptiveface}
+N.~Damer, F.~Boutros, K.~Raja, F.~Kirchbuchner, and A.~Kuijper, ``Adaptive face
+  recognition in the era of facial transformations,'' {\em IEEE Transactions on
+  Biometrics, Behavior, and Identity Science}, vol.~3, no.~4, pp.~588--601,
+  2021.
+
+\bibitem{shufflenetv2}
+N.~Ma, X.~Zhang, H.-T. Zheng, and J.~Sun, ``Shufflenet v2: Practical guidelines
+  for efficient cnn architecture design,'' in {\em Proceedings of the European
+  Conference on Computer Vision (ECCV)}, pp.~116--131, 2018.
+
+\bibitem{edgeface2023}
+A.~George, C.~Ecabert, H.~O. Shahreza, K.~Kotwal, and S.~Marcel, ``Edgeface:
+  Efficient face recognition model for edge devices,'' {\em arXiv preprint
+  arXiv:2307.01838}, 2023.
+
+\bibitem{mixfacenet}
+F.~Boutros, N.~Damer, F.~Kirchbuchner, and A.~Kuijper, ``Mixfacenets: Extremely
+  efficient face recognition networks,'' in {\em 2021 International Joint
+  Conference on Biometrics (IJCB)}, pp.~1--8, IEEE, 2021.
+
+\bibitem{facenet}
+F.~Schroff, D.~Kalenichenko, and J.~Philbin, ``Facenet: A unified embedding for
+  face recognition and clustering,'' in {\em Proceedings of the IEEE Conference
+  on Computer Vision and Pattern Recognition}, pp.~815--823, 2015.
+
+\bibitem{ghostfacenet}
+M.~Alansari, O.~A. Hay, S.~Javed, A.~Shoufan, Y.~Zweiri, and N.~Werghi,
+  ``Ghostfacenets: Lightweight face recognition model from cheap operations,''
+  {\em IEEE Access}, vol.~11, pp.~37854--37867, 2023.
+
+\bibitem{vargfacenet}
+M.~Yan, M.~Zhao, Z.~Xu, Q.~Zhang, G.~Wang, and Z.~Su, ``Vargfacenet: An
+  efficient variable group convolutional neural network for lightweight face
+  recognition,'' {\em IEEE/CAA Journal of Automatica Sinica}, vol.~8, no.~12,
+  pp.~1906--1918, 2021.
+
+\bibitem{mtcnn}
+K.~Zhang, Z.~Zhang, Z.~Li, and Y.~Qiao, ``Joint face detection and alignment
+  using multitask cascaded convolutional networks,'' in {\em IEEE Signal
+  Processing Letters}, vol.~23, pp.~1499--1503, 2016.
+
+\bibitem{mtagging}
+W.~R. Schwartz, P.~Menezes, V.~Campos, and J.~A. Stuchi, ``Multi-stage learning
+  for face detection and tagging,'' in {\em 2019 IEEE/CVF Conference on
+  Computer Vision and Pattern Recognition Workshops (CVPRW)}, pp.~2729--2736,
+  IEEE, 2019.
+
+\bibitem{thop}
+L.~Zhu, ``Thop: Pytorch-opcounter.''
+  \url{https://github.com/Lyken17/pytorch-OpCounter}, 2019.
+
+\bibitem{pytorch}
+A.~Paszke, S.~Gross, F.~Massa, A.~Lerer, J.~Bradbury, G.~Chanan, T.~Killeen,
+  Z.~Lin, N.~Gimelshein, L.~Antiga, {\em et~al.}, ``Pytorch: An imperative
+  style, high-performance deep learning library,'' {\em Advances in neural
+  information processing systems}, vol.~32, 2019.
+
+\end{thebibliography}

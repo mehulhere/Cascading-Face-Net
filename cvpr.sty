@@ -1,0 +1,213 @@
+% ---------------------------------------------------------------
+%
+% $Id: cvpr.sty,v 1.3 2005/10/24 19:56:15 awf Exp $
+%
+% by Paolo.Ienne@di.epfl.ch
+% some mods by awf@acm.org
+%
+% ---------------------------------------------------------------
+%
+% no guarantee is given that the format corresponds perfectly to
+% IEEE 8.5" x 11" Proceedings, but most features should be ok.
+%
+% ---------------------------------------------------------------
+% with LaTeX2e:
+% =============
+%
+% use as
+%
+%    \documentclass[times,10pt,twocolumn]{article}
+%    \usepackage{latex8}
+%    \usepackage{times}
+%
+% ---------------------------------------------------------------
+
+% with LaTeX 2.09:
+% ================
+%
+% use as
+%
+%    \documentstyle[times,art10,twocolumn,latex8]{article}
+%
+% ---------------------------------------------------------------
+% with both versions:
+% ==================
+%
+% specify \cvprfinalcopy to emit the final camera-ready copy
+%
+% specify \cvprfinal to emit the final version WITHOUT page numbers
+%
+% specify \cvprprelimcopy to emit a preliminary version
+%
+% ---------------------------------------------------------------
+
+\usepackage{epsfig}
+\usepackage{eso-pic}
+\usepackage{calc}
+
+\pagestyle{empty}
+\tolerance=1
+\emergencystretch=\maxdimen
+\hyphenpenalty=10000
+\hbadness=10000
+
+\columnsep=0.25in
+
+\def\cvprPaperID{****}
+\def\confYear{CVPR}
+
+% you can redefine these too
+\def\AddToShipoutPicture#1{\g@addto@macro\@@@gatesShipoutPicture{#1}}
+\def\ClearShipoutPicture{\global\let\@@@gatesShipoutPicture\@empty}
+\ClearShipoutPicture
+
+\def\@@@gatesShipoutPicture{\relax}
+\def\gatesShipoutPicture{\@@@gatesShipoutPicture}
+
+\AtBeginDocument{\AddToShipoutPicture{%
+   \ifthenelse{\equal{\cvprPaperID}{****}}{\relax}{%
+     \AtPageLowerLeft{%
+       \expandafter\put(\LenToUnit{0.5\paperwidth-0.25in+0.015\paperwidth},\LenToUnit{0.5in}){%
+         \framebox{\scriptsize\sffamily\bfseries\expandafter\cvprPaperID}}%
+       \expandafter\put(\LenToUnit{0.5\paperwidth+0.25in-0.015\paperwidth},\LenToUnit{0.5in}){%
+         \framebox{\scriptsize\sffamily\bfseries\expandafter\confYear}}
+     }%
+   }%
+ }
+}
+
+% ---------------------------------------------------------------
+%
+% captions, tables, figures
+%
+
+\def\figcaption{\def\@captype{figure}\caption}
+\def\tblcaption{\def\@captype{table}\caption}
+
+\long\def\@makecaption#1#2{
+   \vskip 10pt
+   \setbox\@tempboxa\hbox{\small\sl #1: #2}
+   \ifdim \wd\@tempboxa >\hsize   % IF longer than one line:
+       \small\sl #1: #2\par         % THEN set as ordinary paragraph.
+     \else                           % ELSE  center.
+       \hbox to\hsize{\hfil\box\@tempboxa\hfil}
+   \fi}
+
+% ---------------------------------------------------------------
+%
+% a few definitions in case someone is using the big style file
+
+\def\section{\@startsection {section}{1}{\z@}{14pt plus 2pt minus 2pt}
+             {14pt plus 2pt minus 2pt}{\large\bf}}
+\def\subsection{\@startsection {subsection}{2}{\z@}{14pt plus 2pt minus 2pt}
+             {14pt plus 2pt minus 2pt}{\normalsize\bf}}
+
+% ---------------------------------------------------------------
+%
+% add conference notice that appears in first column of first page
+
+\newcommand{\notice}{%
+   \vspace{-3.5ex}
+   \begin{center}
+      \scriptsize
+     {\bf \expandafter\confYear}
+     \vspace{-3ex}
+   \end{center}
+}
+
+% ---------------------------------------------------------------
+%
+% allow for the use of the @ character in commands
+
+\makeatletter
+
+% ---------------------------------------------------------------
+%
+% bibliography (manual counted and written by the use of
+% \begin{cvprbibliography}
+%     \cvprPapers{
+%         \cvprPaper{1}{}
+%         \cvprPaper{2}{}
+%     }
+% \end{cvprbibliography}
+
+\def\cvprPapers{\renewcommand{\labelitemi}{$\bullet$}\begin{itemize}}
+\def\cvprPaper#1#2{\item \emph{#1}.}
+\def\endcvprPapers{\end{itemize}}
+\def\cvprbibliography#1{\section*{References}\input{#1}}
+
+% same as above, but obeys the Latex standard style of author-year
+\def\bibpaper#1#2#3{\item[\sc{#1 #2}] \sc{#1 }(#2): \emph{#3}}
+
+% more structured approach to the bibliography (use and abuse)
+\def\bib{\renewcommand{\labelitemi}{$\bullet$}\begin{itemize}}
+\def\bibentry#1#2#3#4{\item \sc{#1 }(#2): \emph{#3}, #4}
+\def\endbib{\end{itemize}}
+
+% ---------------------------------------------------------------
+%
+% place a headrule on all pages but the first
+\definecolor{cvprblue}{rgb}{0.0,0.0,0.5}
+\makeatletter
+\def\ps@IEEEheadings{%
+\def\@oddfoot{}\def\@evenfoot{}%
+\def\@oddhead{\hbox{}\hbox to\textwidth{}%
+\llap{\scriptsize\thepage}\hfill\hbox{\scriptsize\leftmark{}{}}%
+\hbox{}\hbox to\textwidth{}\hbox{}\rlap{\hbox{\hbox{}%
+\vbox to 0pt{\vss\hbox to 0pt{\hss\colorbox{cvprblue}%
+{\makebox[\paperwidth+20pt][l]{\hspace*{-10pt}%
+\raisebox{8pt}[9.5pt][0pt]{\rule{\headwidth}{0pt}}}}%
+\hss}\vss}}}}%
+\def\@evenhead{\hbox{}\hbox to\textwidth{}%
+\llap{\scriptsize\thepage}\hfill\hbox{\scriptsize\leftmark{}{}}%
+\hbox{}\hbox to\textwidth{}\hbox{}\rlap{\hbox{\hbox{}%
+\vbox to 0pt{\vss\hbox to 0pt{\hss\colorbox{cvprblue}%
+{\makebox[\paperwidth+20pt][l]{\hspace*{-10pt}%
+\raisebox{8pt}[9.5pt][0pt]{\rule{\headwidth}{0pt}}}}%
+\hss}\vss}}}}%
+}
+\usepackage{ifthen}
+\AtBeginDocument{\pagestyle{IEEEheadings}}%
+
+\usepackage{fancyhdr}
+%\cfoot{\thepage}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyheadoffset[R]{0in}
+\fancyheadoffset[L]{0in}
+\renewcommand{\headrule}{}
+\renewcommand{\footrule}{}
+\fancyhead[C]{}
+\fancyhead[L]{}
+\fancyhead[R]{}
+\fancyfoot[C]{\thepage}
+
+% ---------------------------------------------------------------
+%
+% hyphernatioins
+\hyphenation{resolution}
+\hyphenation{op-ti-miz-a-tion}
+\hyphenation{au-to-ma-ti-cal-ly}
+\hyphenation{ro-ta-ti-on-al-ly}
+
+% ---------------------------------------------------------------
+%
+% a few useful definitions
+
+\def\x{\mathbf x}
+\def\L{\mathcal L}
+
+\def\Xcal{\mathcal X}
+\def\Ycal{\mathcal Y}
+
+\def\cf{{\em cf.~}}
+\def\etal{{\em et al.~}}
+\def\etc{{\em etc.~}}
+\def\ie{{\em i.e.,~}}
+\def\viz{{\em viz.~}}
+
+\def\eg{{\em e.g.,~}}
+
+% ---------------------------------------------------------------
+%
+% End of file 
